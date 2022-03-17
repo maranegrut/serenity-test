@@ -12,6 +12,10 @@ public class NavigateActions extends UIInteractions {
     public void toTheHomePage() {
         openUrl("http://localhost:3000/");
     }
+    @Step("Navigate to the preferences home page")
+    public void toThePreferencesPage() {
+        openUrl("http://localhost:3000/preferences?target-idp=willowtree");
+    }
     public void toTheMatchedAdvisorsPage() {
         openUrl("http://localhost:3000/matched-advisors");
     }

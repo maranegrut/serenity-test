@@ -5,12 +5,13 @@ import net.thucydides.core.annotations.Managed;
 import net.thucydides.core.webdriver.javascript.JavascriptExecutorFacade;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SerenityJUnit5Extension.class)
-class HomePage {
+class Tests {
 
     @Managed(driver = "chrome")
     WebDriver driver;
@@ -19,21 +20,44 @@ class HomePage {
     ClickActions click;
     CurrentPage page;
     PageInteractions interaction;
+    LoginActions login;
 
     @Test
-    void navigateToLocationPage() {
+    void navigateToLocationPage() throws InterruptedException {
         navigate.toTheHomePage();
-
-        click.clickButton();
+        click.clickCtaButton();
         assertThat(page.getTitle()).isEqualTo("Find Your Best Financial Advisor Matches | Edward Jones");
         assertThat(interaction.getLocationHeading()).isEqualTo("Where are you located?");
+        Thread.sleep(30000);
     }
+
+    @Test
+    void getDataLayerEvent() {
+        navigate.toTheHomePage();
+        click.clickCtaButton();
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        assertThat(js.executeScript("return window.dataLayer")).isNotNull();
+        assertThat(js.executeScript("return window.dataLayer.filter(e => e.event === \"cta_button\")[0].event")).isNotNull();
+        assertThat(js.executeScript("return window.dataLayer.filter(e => e.event === \"cta_button\")[0].button_copy")).isEqualTo("Take the quiz");
+    }
+
+    @Test
+    void logIntoPreferences() {
+        navigate.toThePreferencesPage();
+        login.loginWithId("0200253");
+        click.clickLoginButton();
+        assertThat(page.getTitle()).isEqualTo("Find Your Best Financial Advisor Matches | Edward Jones");
+    }
+
+
 
     @Test
     void navigateToMatchedAdvisorsPage() throws InterruptedException {
         navigate.toTheHomePage();
 
         JavascriptExecutorFacade js = new JavascriptExecutorFacade(driver);
+
+String session = "session";
 
         js.executeScript(
                 "window.localStorage.setItem(\"investor-session\", JSON.stringify({\n" +
@@ -63,6 +87,7 @@ class HomePage {
                         "  optimizeToggles: { isInGoogleOptimizeExperiment: false }}));" +
                         ""
         );
+
 
 
 //        LocalStorage localStorage = ((WebStorage) driver).getLocalStorage();
