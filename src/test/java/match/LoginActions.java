@@ -7,7 +7,7 @@ import org.openqa.selenium.Keys;
 public class LoginActions extends UIInteractions {
 
     @Step("Type username")
-    public void loginWithId(String keyword) {
+    public void withAdvisorId(String keyword) {
         $("//*[@id=\"userName\"]").clear();
         $("//*[@id=\"userName\"]").sendKeys(keyword);
     }

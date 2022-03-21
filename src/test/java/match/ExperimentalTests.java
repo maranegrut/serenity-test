@@ -1,5 +1,7 @@
 package match;
 
+import net.serenitybdd.core.pages.WebElementFacade;
+import net.serenitybdd.core.steps.UIInteractions;
 import net.serenitybdd.junit5.SerenityJUnit5Extension;
 import net.thucydides.core.annotations.Managed;
 import net.thucydides.core.webdriver.javascript.JavascriptExecutorFacade;
@@ -11,31 +13,23 @@ import org.openqa.selenium.WebDriver;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SerenityJUnit5Extension.class)
-class Tests {
+class ExperimentalTests extends UIInteractions {
 
     @Managed(driver = "chrome")
     WebDriver driver;
 
-    NavigateActions navigate;
-    ClickActions click;
     CurrentPage page;
-    PageInteractions interaction;
     LoginActions login;
 
     @Test
-    void navigateToLocationPage() throws InterruptedException {
-        navigate.toTheHomePage();
-        click.clickCtaButton();
-        assertThat(page.getTitle()).isEqualTo("Find Your Best Financial Advisor Matches | Edward Jones");
-        assertThat(interaction.getLocationHeading()).isEqualTo("Where are you located?");
-        Thread.sleep(30000);
-    }
-
-    @Test
     void getDataLayerEvent() {
-        navigate.toTheHomePage();
-        click.clickCtaButton();
+        driver.get("http://localhost:3000");
+
+        WebElementFacade ctaButton = page.findByTestId(DataTestId.homepageSectionFourCTADesktop);
+        ctaButton.click();
+
         JavascriptExecutor js = (JavascriptExecutor) driver;
+
         assertThat(js.executeScript("return window.dataLayer")).isNotNull();
         assertThat(js.executeScript("return window.dataLayer.filter(e => e.event === \"cta_button\")[0].event")).isNotNull();
         assertThat(js.executeScript("return window.dataLayer.filter(e => e.event === \"cta_button\")[0].button_copy")).isEqualTo("Take the quiz");
@@ -43,9 +37,10 @@ class Tests {
 
     @Test
     void logIntoPreferences() {
-        navigate.toThePreferencesPage();
-        login.loginWithId("0200253");
-        click.clickLoginButton();
+        driver.get("http://localhost:3000/preferences?target-idp=willowtree");
+        login.withAdvisorId("0200253");
+        WebElementFacade loginButton = page.find("#btn-sign-in");
+        loginButton.click();
         assertThat(page.getTitle()).isEqualTo("Find Your Best Financial Advisor Matches | Edward Jones");
     }
 
@@ -53,7 +48,7 @@ class Tests {
 
     @Test
     void navigateToMatchedAdvisorsPage() throws InterruptedException {
-        navigate.toTheHomePage();
+        driver.get("http://localhost:3000");
 
         JavascriptExecutorFacade js = new JavascriptExecutorFacade(driver);
 
@@ -86,7 +81,6 @@ class Tests {
                         ""
         );
         assertThat(page.getTitle()).isEqualTo("Find Your Best Financial Advisor Matches | Edward Jones");
-        assertThat(interaction.getHomepageHeading()).isEqualTo("Instantly match with financial advisors ready to work with you.");
 
         Thread.sleep(50000);
     }
